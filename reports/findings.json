@@ -1,0 +1,336 @@
+{
+  "summary": {
+    "total": 21,
+    "shadow": 2,
+    "zombie": 1,
+    "orphan": 2,
+    "documented": 9,
+    "noise": 7,
+    "auth_gap": 0
+  },
+  "findings": [
+    {
+      "endpoint": "/users/v1/_debug",
+      "method": "GET",
+      "classification": "SHADOW",
+      "score": 85,
+      "severity": "HIGH",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint observed in traffic but absent from OpenAPI specification",
+        "Sensitive path keyword: debug",
+        "2xx response without authorization"
+      ],
+      "requests": 1,
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "endpoint": "/createdb",
+      "method": "GET",
+      "classification": "SHADOW",
+      "score": 60,
+      "severity": "HIGH",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint observed in traffic but absent from OpenAPI specification",
+        "2xx response without authorization"
+      ],
+      "requests": 1,
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "endpoint": "/users/v1",
+      "method": "GET",
+      "classification": "ZOMBIE",
+      "score": 30,
+      "severity": "MEDIUM",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint marked deprecated in spec but still called in traffic"
+      ],
+      "requests": 1,
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "endpoint": "/users/v1/{username}",
+      "method": "DELETE",
+      "classification": "ORPHAN",
+      "score": 20,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec but never observed in traffic",
+        "Write method: DELETE"
+      ],
+      "requests": 0,
+      "statuses": []
+    },
+    {
+      "endpoint": "/users/v1/{username}/password",
+      "method": "PUT",
+      "classification": "ORPHAN",
+      "score": 20,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec but never observed in traffic",
+        "Write method: PUT"
+      ],
+      "requests": 0,
+      "statuses": []
+    },
+    {
+      "endpoint": "/books/v1",
+      "method": "POST",
+      "classification": "DOCUMENTED",
+      "score": 10,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic",
+        "Write method: POST"
+      ],
+      "requests": 2,
+      "statuses": [
+        200,
+        401
+      ]
+    },
+    {
+      "endpoint": "/users/v1/login",
+      "method": "POST",
+      "classification": "DOCUMENTED",
+      "score": 10,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic",
+        "Write method: POST"
+      ],
+      "requests": 1,
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "endpoint": "/users/v1/register",
+      "method": "POST",
+      "classification": "DOCUMENTED",
+      "score": 10,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic",
+        "Write method: POST"
+      ],
+      "requests": 1,
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "endpoint": "/users/v1/{username}/email",
+      "method": "PUT",
+      "classification": "DOCUMENTED",
+      "score": 10,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic",
+        "Write method: PUT"
+      ],
+      "requests": 2,
+      "statuses": [
+        204,
+        401
+      ]
+    },
+    {
+      "endpoint": "/",
+      "method": "GET",
+      "classification": "DOCUMENTED",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic"
+      ],
+      "requests": 1,
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "endpoint": "/.env",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/admin",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/admin/debug",
+      "method": "POST",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/books/v1",
+      "method": "GET",
+      "classification": "DOCUMENTED",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic"
+      ],
+      "requests": 1,
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "endpoint": "/books/v1/{book_title}",
+      "method": "GET",
+      "classification": "DOCUMENTED",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic"
+      ],
+      "requests": 1,
+      "statuses": [
+        401
+      ]
+    },
+    {
+      "endpoint": "/does-not-exist",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/me",
+      "method": "GET",
+      "classification": "DOCUMENTED",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic"
+      ],
+      "requests": 2,
+      "statuses": [
+        200,
+        401
+      ]
+    },
+    {
+      "endpoint": "/phpmyadmin",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/users/v1/{username}",
+      "method": "GET",
+      "classification": "DOCUMENTED",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Endpoint documented in spec and observed in traffic"
+      ],
+      "requests": 1,
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "endpoint": "/users/{id}",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 4,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/wp-login.php",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
+      ]
+    }
+  ]
+}

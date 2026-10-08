@@ -1,0 +1,42 @@
+# Local-only test bed: VAmPI in vulnerable AND secure mode, each behind an nginx JSON-logging gateway.
+# VAmPI containers publish NO ports; only the gateways are reachable, bound to 127.0.0.1.
+# Ports 18080 (vulnerable) / 18081 (secure) are used to avoid clashes with common :8080 dev servers.
+services:
+  vampi:
+    build: https://github.com/erev0s/VAmPI.git
+    environment: [vulnerable=1, tokentimetolive=3600]
+    expose: ["5000"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5000/"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+  vampi-secure:
+    build: https://github.com/erev0s/VAmPI.git
+    environment: [vulnerable=0, tokentimetolive=3600]
+    expose: ["5000"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5000/"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+  gateway:
+    image: nginx:1.27-alpine
+    depends_on:
+      vampi:
+        condition: service_healthy
+    ports: ["127.0.0.1:18080:80"]
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs/vulnerable:/var/log/nginx
+  gateway-secure:
+    image: nginx:1.27-alpine
+    depends_on:
+      vampi-secure:
+        condition: service_healthy
+    ports: ["127.0.0.1:18081:80"]
+    volumes:
+      - ./gateway/nginx.secure.conf:/etc/nginx/nginx.conf:ro
+      - ./logs/secure:/var/log/nginx

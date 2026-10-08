@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SADM 3D Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f2f5f9;--panel:#fff;--ink:#14202e;--mute:#5d6b7c;--line:#d8dfe8;--stage:#e6ecf4;
+ --SHADOW:#e5484d;--ZOMBIE:#e08a00;--ORPHAN:#2f6fdd;--DOCUMENTED:#1f9d63;--NOISE:#8794a5;
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1520;--panel:#152131;--ink:#e6edf5;--mute:#8fa0b4;--line:#243449;--stage:#0a111a}}
+:root[data-theme="dark"]{--bg:#0d1520;--panel:#152131;--ink:#e6edf5;--mute:#8fa0b4;--line:#243449;--stage:#0a111a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+h1{font-size:22px;margin:0;font-weight:600;letter-spacing:-.01em}
+.sub{color:var(--mute);font-size:13px}
+.bar{display:flex;gap:8px;margin:14px 0 10px;flex-wrap:wrap}
+input[type=search]{flex:1 1 220px;min-width:0;padding:11px 14px;font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px}
+input[type=search]:focus,button:focus-visible,.chip:focus-visible,li:focus-visible{outline:2px solid var(--ORPHAN);outline-offset:2px}
+button,.file{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer}
+.file input{display:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip{display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.chip i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.chip[aria-pressed=false]{opacity:.45}
+.chip b{font-weight:600}
+#stage{position:relative;height:min(58vh,520px);min-height:300px;border-radius:14px;background:var(--stage);border:1px solid var(--line);overflow:hidden;touch-action:none}
+#stage canvas{display:block;width:100%;height:100%;cursor:grab}
+.hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--mute);pointer-events:none}
+#tip{position:absolute;pointer-events:none;padding:4px 8px;border-radius:6px;background:var(--ink);color:var(--bg);font-size:12px;display:none;white-space:nowrap}
+.grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media(min-width:820px){.grid{grid-template-columns:1.1fr .9fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+h2{font-size:15px;margin:0 0 8px;font-weight:600}
+ul{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto}
+li{display:flex;gap:10px;align-items:center;padding:9px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px}
+li[aria-selected=true]{background:color-mix(in srgb,var(--ORPHAN) 14%,transparent)}
+li .dot{width:10px;height:10px;border-radius:3px;flex:none}
+li .ep{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:500}
+li .m{color:var(--mute);font-size:12px;flex:none}
+li .s{font-weight:600;flex:none;min-width:34px;text-align:right}
+.empty{color:var(--mute);padding:14px 4px}
+.meter{height:8px;border-radius:5px;background:var(--line);margin:8px 0 12px;overflow:hidden}
+.meter span{display:block;height:100%;background:var(--c,var(--ORPHAN))}
+.tag{display:inline-block;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:600;color:#fff;background:var(--c)}
+dl{margin:10px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+dt{color:var(--mute)}dd{margin:0;overflow-wrap:anywhere}
+.reasons{margin:10px 0 0;padding-left:18px;font-size:14px}
+.reasons li{display:list-item;border:0;padding:2px 0;cursor:default}
+.err{color:var(--SHADOW);font-size:13px;margin:4px 0}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head>
+<body><main>
+<header><div><h1>Shadow API map</h1><div class="sub" id="meta"></div></div>
+<button id="theme" type="button" aria-label="Toggle light or dark theme">Theme</button></header>
+<div class="bar">
+ <input id="q" type="search" placeholder="Search endpoint, method, type, reason (e.g. debug, POST, zombie)" aria-label="Search findings" autocomplete="off">
+ <label class="file">Load report.json<input id="file" type="file" accept="application/json,.json"></label>
+</div>
+<div class="err" id="err" role="alert"></div>
+<div class="chips" id="chips"></div>
+<div id="stage"><div id="tip"></div><div class="hint">Drag to rotate · scroll or pinch to zoom · tap a bar</div></div>
+<div class="grid">
+ <section class="card"><h2 id="lh">Findings</h2><ul id="list" role="listbox" aria-label="Findings"></ul></section>
+ <section class="card" id="detail"><h2>Details</h2><div class="empty">Select a bar or a row to see why it was flagged.</div></section>
+</div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const COLORS={SHADOW:'#e5484d',ZOMBIE:'#e08a00',ORPHAN:'#2f6fdd',DOCUMENTED:'#1f9d63',NOISE:'#8794a5'};
+const ORDER=['SHADOW','ZOMBIE','ORPHAN','DOCUMENTED','NOISE'];
+let data={"summary":{"total":21,"shadow":2,"zombie":1,"orphan":2,"documented":9,"noise":7,"auth_gap":0},"findings":[{"endpoint":"/users/v1/_debug","method":"GET","classification":"SHADOW","score":85,"severity":"HIGH","auth_gap":false,"reasons":["Endpoint observed in traffic but absent from OpenAPI specification","Sensitive path keyword: debug","2xx response without authorization"],"requests":1,"statuses":[200]},{"endpoint":"/createdb","method":"GET","classification":"SHADOW","score":60,"severity":"HIGH","auth_gap":false,"reasons":["Endpoint observed in traffic but absent from OpenAPI specification","2xx response without authorization"],"requests":1,"statuses":[200]},{"endpoint":"/users/v1","method":"GET","classification":"ZOMBIE","score":30,"severity":"MEDIUM","auth_gap":false,"reasons":["Endpoint marked deprecated in spec but still called in traffic"],"requests":1,"statuses":[200]},{"endpoint":"/users/v1/{username}","method":"DELETE","classification":"ORPHAN","score":20,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec but never observed in traffic","Write method: DELETE"],"requests":0,"statuses":[]},{"endpoint":"/users/v1/{username}/password","method":"PUT","classification":"ORPHAN","score":20,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec but never observed in traffic","Write method: PUT"],"requests":0,"statuses":[]},{"endpoint":"/books/v1","method":"POST","classification":"DOCUMENTED","score":10,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic","Write method: POST"],"requests":2,"statuses":[200,401]},{"endpoint":"/users/v1/login","method":"POST","classification":"DOCUMENTED","score":10,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic","Write method: POST"],"requests":1,"statuses":[200]},{"endpoint":"/users/v1/register","method":"POST","classification":"DOCUMENTED","score":10,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic","Write method: POST"],"requests":1,"statuses":[200]},{"endpoint":"/users/v1/{username}/email","method":"PUT","classification":"DOCUMENTED","score":10,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic","Write method: PUT"],"requests":2,"statuses":[204,401]},{"endpoint":"/","method":"GET","classification":"DOCUMENTED","score":0,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic"],"requests":1,"statuses":[200]},{"endpoint":"/.env","method":"GET","classification":"NOISE","score":0,"severity":"LOW","auth_gap":false,"reasons":["Only ever returned HTTP 404 (scanner/probe noise, not scored)"],"requests":1,"statuses":[404]},{"endpoint":"/admin","method":"GET","classification":"NOISE","score":0,"severity":"LOW","auth_gap":false,"reasons":["Only ever returned HTTP 404 (scanner/probe noise, not scored)"],"requests":1,"statuses":[404]},{"endpoint":"/admin/debug","method":"POST","classification":"NOISE","score":0,"severity":"LOW","auth_gap":false,"reasons":["Only ever returned HTTP 404 (scanner/probe noise, not scored)"],"requests":1,"statuses":[404]},{"endpoint":"/books/v1","method":"GET","classification":"DOCUMENTED","score":0,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic"],"requests":1,"statuses":[200]},{"endpoint":"/books/v1/{book_title}","method":"GET","classification":"DOCUMENTED","score":0,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic"],"requests":1,"statuses":[401]},{"endpoint":"/does-not-exist","method":"GET","classification":"NOISE","score":0,"severity":"LOW","auth_gap":false,"reasons":["Only ever returned HTTP 404 (scanner/probe noise, not scored)"],"requests":1,"statuses":[404]},{"endpoint":"/me","method":"GET","classification":"DOCUMENTED","score":0,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic"],"requests":2,"statuses":[200,401]},{"endpoint":"/phpmyadmin","method":"GET","classification":"NOISE","score":0,"severity":"LOW","auth_gap":false,"reasons":["Only ever returned HTTP 404 (scanner/probe noise, not scored)"],"requests":1,"statuses":[404]},{"endpoint":"/users/v1/{username}","method":"GET","classification":"DOCUMENTED","score":0,"severity":"LOW","auth_gap":false,"reasons":["Endpoint documented in spec and observed in traffic"],"requests":1,"statuses":[200]},{"endpoint":"/users/{id}","method":"GET","classification":"NOISE","score":0,"severity":"LOW","auth_gap":false,"reasons":["Only ever returned HTTP 404 (scanner/probe noise, not scored)"],"requests":4,"statuses":[404]},{"endpoint":"/wp-login.php","method":"GET","classification":"NOISE","score":0,"severity":"LOW","auth_gap":false,"reasons":["Only ever returned HTTP 404 (scanner/probe noise, not scored)"],"requests":1,"statuses":[404]}]}, F=[], active=new Set(ORDER), query='', sel=-1, bars=[];
+const $=id=>document.getElementById(id);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+
+// ---------- three.js scene ----------
+const stage=$('stage'), group=new THREE.Group();
+const scene=new THREE.Scene(); scene.add(group);
+const cam=new THREE.PerspectiveCamera(45,1,.1,200);
+const ren=new THREE.WebGLRenderer({antialias:true,alpha:true});
+ren.setPixelRatio(Math.min(devicePixelRatio,2)); stage.prepend(ren.domElement);
+scene.add(new THREE.AmbientLight(0xffffff,.65));
+const sun=new THREE.DirectionalLight(0xffffff,.8); sun.position.set(6,12,8); scene.add(sun);
+const grid=new THREE.GridHelper(14,14,0x7d8ea3,0x7d8ea3); grid.material.opacity=.25; grid.material.transparent=true; scene.add(grid);
+let th=-.7, ph=1.0, dist=17, auto=true;
+function place(){cam.position.set(dist*Math.sin(ph)*Math.sin(th),dist*Math.cos(ph),dist*Math.sin(ph)*Math.cos(th));cam.lookAt(0,1.8,0)}
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;ren.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(stage);
+
+function build(){
+  while(group.children.length){const o=group.children.pop();o.geometry.dispose();o.material.dispose()}
+  bars=[]; const lanes=ORDER.map(c=>F.filter(f=>f.classification===c));
+  const maxN=Math.max(1,...lanes.map(l=>l.length));
+  lanes.forEach((lane,li)=>lane.forEach((f,i)=>{
+    const h=Math.max(.15,f.score/18);
+    const m=new THREE.Mesh(new THREE.BoxGeometry(.8,h,.8),new THREE.MeshStandardMaterial({color:COLORS[f.classification],transparent:true,roughness:.45,metalness:.1}));
+    m.position.set((li-2)*2.6,h/2,(i-(maxN-1)/2)*1.05); m.userData.f=f; group.add(m); bars.push(m);
+  }));
+  grid.scale.set(1,1,Math.max(1,maxN/10)); refresh3d();
+}
+function match(f){
+  if(!active.has(f.classification))return false;
+  const t=[f.endpoint,f.method,f.classification,f.severity,...(f.reasons||[])].join(' ').toLowerCase();
+  return query.split(/\s+/).filter(Boolean).every(w=>t.includes(w));
+}
+function refresh3d(){bars.forEach(b=>{const on=match(b.userData.f),s=b.userData.f===F[sel];
+  b.material.opacity=on?1:.07; b.material.emissive.setHex(s?0xffffff:0); b.material.emissiveIntensity=s?.55:0; b.scale.x=b.scale.z=s?1.25:1})}
+
+// ---------- interaction ----------
+const ray=new THREE.Raycaster(), ptr=new THREE.Vector2(), pts=new Map(); let moved=0, pinch=0;
+const cv=ren.domElement;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);moved=0;auto=false;cv.style.cursor='grabbing'});
+cv.addEventListener('pointermove',e=>{
+  const p=pts.get(e.pointerId);
+  if(p){const dx=e.clientX-p[0],dy=e.clientY-p[1];p[0]=e.clientX;p[1]=e.clientY;moved+=Math.abs(dx)+Math.abs(dy);
+    if(pts.size===1){th-=dx*.008;ph=Math.min(1.5,Math.max(.25,ph-dy*.006))}
+    else if(pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinch)dist=Math.min(34,Math.max(7,dist*pinch/d));pinch=d}}
+  else hover(e);
+});
+const up=e=>{if(pts.size===1&&moved<6)pick(e);pts.delete(e.pointerId);pinch=0;cv.style.cursor='grab'};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{pts.delete(e.pointerId);pinch=0});
+cv.addEventListener('wheel',e=>{e.preventDefault();dist=Math.min(34,Math.max(7,dist*(1+e.deltaY*.001)))},{passive:false});
+function hit(e){const r=cv.getBoundingClientRect();ptr.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(ptr,cam);
+  return ray.intersectObjects(bars.filter(b=>match(b.userData.f)))[0]}
+function hover(e){const h=hit(e),t=$('tip');if(!h){t.style.display='none';return}
+  const f=h.object.userData.f,r=stage.getBoundingClientRect();t.textContent=`${f.method} ${f.endpoint} · ${f.score}`;
+  t.style.display='block';t.style.left=Math.min(e.clientX-r.left+12,r.width-t.offsetWidth-6)+'px';t.style.top=Math.max(4,e.clientY-r.top-30)+'px'}
+function pick(e){const h=hit(e);if(h)select(F.indexOf(h.object.userData.f))}
+
+// ---------- UI ----------
+function renderChips(){const box=$('chips');box.replaceChildren();
+  ORDER.forEach(c=>{const n=F.filter(f=>f.classification===c).length;
+    const b=el('button','chip');b.type='button';b.style.setProperty('--c',COLORS[c]);b.setAttribute('aria-pressed',active.has(c));
+    b.append(el('i'),el('span',null,c.toLowerCase()),el('b',null,n));
+    b.onclick=()=>{active.has(c)?active.delete(c):active.add(c);renderChips();update()};box.append(b)})}
+function renderList(){const ul=$('list');ul.replaceChildren();
+  const rows=F.map((f,i)=>[f,i]).filter(([f])=>match(f));
+  $('lh').textContent=`Findings (${rows.length} of ${F.length})`;
+  if(!rows.length){ul.append(el('div','empty','No findings match. Clear the search or turn a type back on.'));return}
+  rows.forEach(([f,i])=>{const li=el('li');li.tabIndex=0;li.setAttribute('role','option');li.setAttribute('aria-selected',i===sel);
+    const d=el('span','dot');d.style.background=COLORS[f.classification];
+    li.append(d,el('span','ep',f.endpoint),el('span','m',f.method),el('span','s',f.score));
+    li.onclick=()=>select(i);li.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(i)}};ul.append(li)})}
+function renderDetail(){const box=$('detail');box.replaceChildren(el('h2',null,'Details'));const f=F[sel];
+  if(!f){box.append(el('div','empty','Select a bar or a row to see why it was flagged.'));return}
+  const c=COLORS[f.classification];box.style.setProperty('--c',c);
+  const tag=el('span','tag',f.classification);tag.style.setProperty('--c',c);
+  box.append(el('div',null,`${f.method} ${f.endpoint}`),tag);
+  const m=el('div','meter');m.style.setProperty('--c',c);const s=el('span');s.style.width=f.score+'%';m.append(s);box.append(m);
+  const dl=el('dl');[['Score',`${f.score} / 100 (${f.severity})`],['Requests',f.requests??'-'],['Statuses',(f.statuses||[]).join(', ')||'none seen']]
+    .forEach(([k,v])=>dl.append(el('dt',null,k),el('dd',null,v)));box.append(dl);
+  const ul=el('ul','reasons');(f.reasons||[]).forEach(r=>ul.append(el('li',null,r)));box.append(el('h2',null,'Why it was flagged'),ul)}
+function select(i){sel=i;auto=false;update()}
+function update(){refresh3d();renderList();renderDetail()}
+function load(d){
+  if(!d||!Array.isArray(d.findings))throw new Error('Not a SADM report: "findings" list is missing.');
+  data=d;F=d.findings.filter(f=>f&&f.endpoint&&COLORS[f.classification]).sort((a,b)=>b.score-a.score);sel=-1;active=new Set(ORDER);
+  const s=d.summary||{};$('meta').textContent=`${F.length} endpoints · ${s.shadow??0} shadow · ${s.zombie??0} zombie · ${s.orphan??0} orphan · ${s.noise??0} noise`;
+  renderChips();build();update()}
+$('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();update()});
+$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;$('err').textContent='';
+  try{load(JSON.parse(await f.text()))}catch(x){$('err').textContent='Could not load that file: '+x.message}e.target.value=''});
+$('theme').onclick=()=>{const r=document.documentElement,dark=getComputedStyle(r).getPropertyValue('--bg').trim()==='#0d1520';r.dataset.theme=dark?'light':'dark'};
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+(function loop(){if(auto&&!still)th+=.003;place();ren.render(scene,cam);requestAnimationFrame(loop)})();
+resize();load(data);
+</script></body></html>
