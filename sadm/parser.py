@@ -66,11 +66,23 @@ def read_logs(path: str) -> tuple[list[dict], list[str]]:
             item = json.loads(line)
             if not isinstance(item, dict):
                 raise ValueError("line is not a JSON object")
+            method = item["method"]
+            path_value = item["path"]
+            status = item["status"]
+            has_auth = item.get("has_auth", False)
+            if not isinstance(method, str) or not method.strip():
+                raise ValueError("method must be a non-empty string")
+            if not isinstance(path_value, str) or not path_value:
+                raise ValueError("path must be a non-empty string")
+            if isinstance(status, bool) or not isinstance(status, int) or not 100 <= status <= 599:
+                raise ValueError("status must be an integer from 100 to 599")
+            if not isinstance(has_auth, bool):
+                raise ValueError("has_auth must be boolean")
             records.append({
-                "method": str(item["method"]).upper(),
-                "path": str(item["path"]),
-                "status": int(item["status"]),
-                "has_auth": bool(item.get("has_auth", False)),
+                "method": method.upper(),
+                "path": path_value,
+                "status": status,
+                "has_auth": has_auth,
             })
         except KeyError as exc:
             errors.append(f"line {number}: missing field {exc}")
