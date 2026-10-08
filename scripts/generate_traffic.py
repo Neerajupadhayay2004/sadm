@@ -9,12 +9,13 @@ from urllib.parse import urlsplit
 
 DEFAULT_BASE = "http://127.0.0.1:18080"
 LOCAL_HOSTS = {"127.0.0.1", "localhost"}
+ALLOWED_PORTS = {18080, 18081}
 
 
 def validate_target(base: str) -> None:
     parsed = urlsplit(base)
-    if parsed.scheme != "http" or parsed.hostname not in LOCAL_HOSTS:
-        raise SystemExit("refusing to send traffic: target must be local HTTP")
+    if parsed.scheme != "http" or parsed.hostname not in LOCAL_HOSTS or parsed.port not in ALLOWED_PORTS:
+        raise SystemExit("refusing to send traffic: target must be local HTTP on port 18080 or 18081")
 
 
 def wait_for_ready(base: str, timeout: int = 60) -> None:
