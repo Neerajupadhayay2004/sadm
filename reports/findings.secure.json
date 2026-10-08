@@ -1,151 +1,45 @@
 {
   "summary": {
     "total": 21,
-    "shadow": 9,
+    "shadow": 2,
     "zombie": 1,
     "orphan": 2,
     "documented": 9,
-    "noise": 0,
+    "noise": 7,
     "auth_gap": 0
   },
   "findings": [
     {
-      "endpoint": "/admin/debug",
-      "method": "POST",
-      "classification": "SHADOW",
-      "score": 75,
-      "severity": "HIGH",
-      "auth_gap": false,
-      "reasons": [
-        "Endpoint observed in traffic but absent from OpenAPI specification",
-        "Sensitive path keyword: admin",
-        "Write method: POST"
-      ],
-      "requests": 1,
-      "statuses": [
-        502
-      ]
-    },
-    {
-      "endpoint": "/admin",
-      "method": "GET",
-      "classification": "SHADOW",
-      "score": 65,
-      "severity": "HIGH",
-      "auth_gap": false,
-      "reasons": [
-        "Endpoint observed in traffic but absent from OpenAPI specification",
-        "Sensitive path keyword: admin"
-      ],
-      "requests": 1,
-      "statuses": [
-        502
-      ]
-    },
-    {
       "endpoint": "/users/v1/_debug",
       "method": "GET",
       "classification": "SHADOW",
-      "score": 65,
+      "score": 85,
       "severity": "HIGH",
       "auth_gap": false,
       "reasons": [
         "Endpoint observed in traffic but absent from OpenAPI specification",
-        "Sensitive path keyword: debug"
+        "Sensitive path keyword: debug",
+        "2xx response without authorization"
       ],
       "requests": 1,
       "statuses": [
-        502
-      ]
-    },
-    {
-      "endpoint": "/.env",
-      "method": "GET",
-      "classification": "SHADOW",
-      "score": 40,
-      "severity": "MEDIUM",
-      "auth_gap": false,
-      "reasons": [
-        "Endpoint observed in traffic but absent from OpenAPI specification"
-      ],
-      "requests": 1,
-      "statuses": [
-        502
+        200
       ]
     },
     {
       "endpoint": "/createdb",
       "method": "GET",
       "classification": "SHADOW",
-      "score": 40,
-      "severity": "MEDIUM",
+      "score": 60,
+      "severity": "HIGH",
       "auth_gap": false,
       "reasons": [
-        "Endpoint observed in traffic but absent from OpenAPI specification"
+        "Endpoint observed in traffic but absent from OpenAPI specification",
+        "2xx response without authorization"
       ],
       "requests": 1,
       "statuses": [
-        502
-      ]
-    },
-    {
-      "endpoint": "/does-not-exist",
-      "method": "GET",
-      "classification": "SHADOW",
-      "score": 40,
-      "severity": "MEDIUM",
-      "auth_gap": false,
-      "reasons": [
-        "Endpoint observed in traffic but absent from OpenAPI specification"
-      ],
-      "requests": 1,
-      "statuses": [
-        502
-      ]
-    },
-    {
-      "endpoint": "/phpmyadmin",
-      "method": "GET",
-      "classification": "SHADOW",
-      "score": 40,
-      "severity": "MEDIUM",
-      "auth_gap": false,
-      "reasons": [
-        "Endpoint observed in traffic but absent from OpenAPI specification"
-      ],
-      "requests": 1,
-      "statuses": [
-        502
-      ]
-    },
-    {
-      "endpoint": "/users/{id}",
-      "method": "GET",
-      "classification": "SHADOW",
-      "score": 40,
-      "severity": "MEDIUM",
-      "auth_gap": false,
-      "reasons": [
-        "Endpoint observed in traffic but absent from OpenAPI specification"
-      ],
-      "requests": 4,
-      "statuses": [
-        502
-      ]
-    },
-    {
-      "endpoint": "/wp-login.php",
-      "method": "GET",
-      "classification": "SHADOW",
-      "score": 40,
-      "severity": "MEDIUM",
-      "auth_gap": false,
-      "reasons": [
-        "Endpoint observed in traffic but absent from OpenAPI specification"
-      ],
-      "requests": 1,
-      "statuses": [
-        502
+        200
       ]
     },
     {
@@ -160,7 +54,7 @@
       ],
       "requests": 1,
       "statuses": [
-        502
+        200
       ]
     },
     {
@@ -204,7 +98,8 @@
       ],
       "requests": 2,
       "statuses": [
-        502
+        200,
+        401
       ]
     },
     {
@@ -220,7 +115,7 @@
       ],
       "requests": 1,
       "statuses": [
-        502
+        200
       ]
     },
     {
@@ -236,7 +131,7 @@
       ],
       "requests": 1,
       "statuses": [
-        502
+        200
       ]
     },
     {
@@ -252,7 +147,8 @@
       ],
       "requests": 2,
       "statuses": [
-        502
+        204,
+        401
       ]
     },
     {
@@ -267,7 +163,52 @@
       ],
       "requests": 1,
       "statuses": [
-        502
+        200
+      ]
+    },
+    {
+      "endpoint": "/.env",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/admin",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/admin/debug",
+      "method": "POST",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
       ]
     },
     {
@@ -282,7 +223,7 @@
       ],
       "requests": 1,
       "statuses": [
-        502
+        200
       ]
     },
     {
@@ -297,7 +238,22 @@
       ],
       "requests": 1,
       "statuses": [
-        502
+        401
+      ]
+    },
+    {
+      "endpoint": "/does-not-exist",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
       ]
     },
     {
@@ -312,7 +268,23 @@
       ],
       "requests": 2,
       "statuses": [
-        502
+        200,
+        401
+      ]
+    },
+    {
+      "endpoint": "/phpmyadmin",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
       ]
     },
     {
@@ -327,7 +299,37 @@
       ],
       "requests": 1,
       "statuses": [
-        502
+        200
+      ]
+    },
+    {
+      "endpoint": "/users/{id}",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 4,
+      "statuses": [
+        404
+      ]
+    },
+    {
+      "endpoint": "/wp-login.php",
+      "method": "GET",
+      "classification": "NOISE",
+      "score": 0,
+      "severity": "LOW",
+      "auth_gap": false,
+      "reasons": [
+        "Only ever returned HTTP 404 (scanner/probe noise, not scored)"
+      ],
+      "requests": 1,
+      "statuses": [
+        404
       ]
     }
   ]
