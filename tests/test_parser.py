@@ -56,3 +56,14 @@ def test_read_logs_skips_malformed(tmp_path):
 def test_missing_log_file():
     with pytest.raises(SpecError):
         read_logs("/nonexistent/file.jsonl")
+
+def test_rejects_invalid_log_field_types(tmp_path):
+    p = tmp_path / "a.jsonl"
+    p.write_text(
+        '{"method":"GET","path":"/a","status":200,"has_auth":"false"}\n'
+        '{"method":"GET","path":"/b","status":700,"has_auth":false}\n'
+        '{"method":"GET","path":"/c","status":200,"has_auth":false}\n'
+    )
+    recs, errs = read_logs(str(p))
+    assert recs == [{"method": "GET", "path": "/c", "status": 200, "has_auth": False}]
+    assert len(errs) == 2
