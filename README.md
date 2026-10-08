@@ -34,7 +34,7 @@ Requires Python 3.11+.
 ```bash
 pip install -r requirements.txt
 python -m sadm --spec examples/vampi-openapi.yaml --logs examples/access.jsonl --output reports/findings.json
-pytest                      # 51 tests
+pytest                      # 52 tests
 ```
 
 Options: `--spec` (.yaml/.yml/.json), `--logs` (JSONL), `--output` (default `report.json`),
